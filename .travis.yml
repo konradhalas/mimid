@@ -1,0 +1,30 @@
+dist: xenial
+language: python
+python:
+- 3.6
+- 3.7
+install:
+- pip install -e .[dev]
+script:
+- pytest tests.py --cov=mimid
+- black --check .
+- mypy mimid.py
+- pylint mimid.py
+after_success:
+  coveralls
+stages:
+- test
+- deploy
+jobs:
+  include:
+    - stage: deploy
+      script: skip
+      python: 3.7
+      deploy:
+        provider: pypi
+        user: khalas
+        password:
+          secure: EArdRKHee5bC7pKtWC7Pkd4fmb+9Ky/yqwd9xYGA7Vsc755iCLRFlM1TNhAlN/8RGgbro+XP/dT/nb2XSY5U77DmWV6McHbgt2JQAjCFwlomNzb79KJ38QC0I0GxVVlJYVwfEh9rqpiWJMWmWMXHpyHKh8xxHjNQoBmFyJ+iUmblCkYq452yxR2/dlpewuOjEWxz60hiLqdT/m1pixAf83ViIdhKgfVVg8TqL+uA1lueRDYkChGkZ06oLEdGu+nyoiRCLoVIDRTBFS+TKN6efIADSPdCXi+havPVS+qtUGpIeNOPcPDzzi9t/Z7XHKYKbRBJ9qKhMvWceGb/5s0oGDiNI+WnmVsYQ/CaDSjmg7py089EpQ2QaqipVRiDVqbE0Al7EUwBSfYxho0LibrvnuY+ga8gBCE0q4uxYgPixoKQvJTdWt1bSmtq0lJkuIfGtMUmnOSRrGrOWZ+eFILhDAXQsOVllaOo87JE3xAeMoS71OY8i+2tKYIWv4OB/fLWTu0iMuqlMpeoZdLA/IXC/FP7/EkURKFmBxcipGJSqQXz3P8VNzmOrkbgE0ylNz9Kn+IQwO/iwjTUj8+/2UuhPzPP5wQ+bZPrT6JJWvE8eRxeWNGjWA4k4FrO37Tz9puwN2z87OXbGsaQxOmgm++XBnH8QEQ0MFDJpWq5JgDEcxk=
+        on:
+          tags: true
+        distributions: "sdist bdist_wheel"
