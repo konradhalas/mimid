@@ -5,6 +5,8 @@
 
 Mocking library for Python.
 
+**⚠️ This project is under development, current version is just a PoC**. 
+
 ## Installation
 
 To install `mimid`, simply use `pip`:

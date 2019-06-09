@@ -11,11 +11,13 @@ setup(
     url="https://github.com/konradhalas/mimid",
     license="MIT",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Testing",
+        "Topic :: Software Development :: Testing :: Mocking"
     ],
     python_requires=">=3.6",
     keywords="testing mocking",
