@@ -24,7 +24,7 @@ jobs:
         provider: pypi
         user: khalas
         password:
-          secure: EArdRKHee5bC7pKtWC7Pkd4fmb+9Ky/yqwd9xYGA7Vsc755iCLRFlM1TNhAlN/8RGgbro+XP/dT/nb2XSY5U77DmWV6McHbgt2JQAjCFwlomNzb79KJ38QC0I0GxVVlJYVwfEh9rqpiWJMWmWMXHpyHKh8xxHjNQoBmFyJ+iUmblCkYq452yxR2/dlpewuOjEWxz60hiLqdT/m1pixAf83ViIdhKgfVVg8TqL+uA1lueRDYkChGkZ06oLEdGu+nyoiRCLoVIDRTBFS+TKN6efIADSPdCXi+havPVS+qtUGpIeNOPcPDzzi9t/Z7XHKYKbRBJ9qKhMvWceGb/5s0oGDiNI+WnmVsYQ/CaDSjmg7py089EpQ2QaqipVRiDVqbE0Al7EUwBSfYxho0LibrvnuY+ga8gBCE0q4uxYgPixoKQvJTdWt1bSmtq0lJkuIfGtMUmnOSRrGrOWZ+eFILhDAXQsOVllaOo87JE3xAeMoS71OY8i+2tKYIWv4OB/fLWTu0iMuqlMpeoZdLA/IXC/FP7/EkURKFmBxcipGJSqQXz3P8VNzmOrkbgE0ylNz9Kn+IQwO/iwjTUj8+/2UuhPzPP5wQ+bZPrT6JJWvE8eRxeWNGjWA4k4FrO37Tz9puwN2z87OXbGsaQxOmgm++XBnH8QEQ0MFDJpWq5JgDEcxk=
+          secure: QuPM1vc8dBJPmYLHJC7vWRwy51xIw7d08BM3WMXhYwI5nlE4wYrq3bKJYYzIuliML29FTeth1o3MNLtAlFsa88RrcMObRUU6NNeEVi5kVrGulRoJruuieHUmHPviawew/Qn18GZihdikVj9ijJTn0XxijT5dhHprBB9GPDoxBFEVKZpL7YHBXG+I5AWzo/qmD0vNbs849596NIm1+vBZAlOyAYLGYo2WBm8ehHyPOGSN1BL9t3Y75fRvQoFOzyaOQBzC+MU2gO34miEpIBAy2cqKAfgau+DUnQXWEn5ig16Gx6rOkHO3eh7hjCTzZ1857+HCkQ32ds8cVdAGPHorMa4iuDEmGNUk8Y1HeES1ZyiSeaoi4wPRMlgbW+pp5U/rEvOtsFM33ZRTwv2GnuHeneY6GDmscLhXpwy+jgKf3ADTU7UefQKrOT6dSLqqjRNWCH5kkj8EDQfuDnXtYZQ0otCYZA9Bis25+pZdYh9iT66uLPHGJ3fUuDpE0/oMlITOtOzCXfMW4E2IxVM8y7et9ZxugRDjrJYcni5sR5McEHfRluQFxUGwz0QO8hGrsBxOzu7udjX3aaHoonyQzVrstlWfvCa0sn4/PIQ27SQImWZ2pzfKoxup8F6pNUHe0W5/NieNAqUkf9lGEA7mjy+svMjanro2J91T+DtXpCdw4JI=
         on:
           tags: true
         distributions: "sdist bdist_wheel"
