@@ -1,6 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass
-from typing import Type, TypeVar, Dict, Optional, cast
+from typing import Type, TypeVar, Dict, Optional, cast, NamedTuple
 
 T = TypeVar("T")
 
@@ -33,8 +32,7 @@ class MockAttribute:
         raise CallNotConfiguredException()
 
 
-@dataclass(frozen=True)
-class Call:
+class Call(NamedTuple):
     args: tuple
     kwargs: tuple
 
