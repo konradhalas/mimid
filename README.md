@@ -2,6 +2,10 @@
 
 [![Build Status](https://travis-ci.org/konradhalas/mimid.svg?branch=master)](https://travis-ci.org/konradhalas/mimid)
 [![Coverage Status](https://coveralls.io/repos/github/konradhalas/mimid/badge.svg?branch=master)](https://coveralls.io/github/konradhalas/mimid?branch=master)
+[![License](https://img.shields.io/pypi/l/mimid.svg)](https://pypi.python.org/pypi/mimid/)
+[![Version](https://img.shields.io/pypi/v/mimid.svg)](https://pypi.python.org/pypi/mimid/)
+[![Python versions](https://img.shields.io/pypi/pyversions/mimid.svg)](https://pypi.python.org/pypi/mimid/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 Mocking library for Python.
 
@@ -45,3 +49,9 @@ However it has a few disadvantages:
 - it doesn't work well with type hinted code
 - it's difficult to define different behaviours for different call arguments
 - it allows too much freedom
+
+## Authors
+
+Created by [Konrad Hałas][halas-homepage].
+
+[halas-homepage]: https://konradhalas.pl
