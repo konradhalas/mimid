@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Type, TypeVar, Dict, Optional, cast, NamedTuple
+from typing import Type, TypeVar, Dict, Optional, cast, NamedTuple, Union, Any
 
 T = TypeVar("T")
 
@@ -57,8 +57,8 @@ class CallVerifier:
         self.mock_attr = mock_attr
         self.call: Optional[Call] = None
 
-    def called_once(self):
-        if (self.call and self.mock_attr.calls[self.call] != 1) or (
+    def called(self):
+        if (self.call and self.mock_attr.calls[self.call] == 0) or (
             not self.call and sum(self.mock_attr.calls.values()) == 0
         ):
             raise NotCalledException()
@@ -72,11 +72,11 @@ def mock(cls: Type[T]) -> T:
     return cast(T, Mock(cls))
 
 
-def every(mock_attr: MockAttribute) -> CallConfigurator:
+def every(mock_attr: Union[MockAttribute, Any]) -> CallConfigurator:
     return CallConfigurator(mock_attr)
 
 
-def verify(mock_attr: MockAttribute) -> CallVerifier:
+def verify(mock_attr: Union[MockAttribute, Any]) -> CallVerifier:
     return CallVerifier(mock_attr=mock_attr)
 
 

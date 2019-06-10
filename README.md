@@ -26,7 +26,7 @@ $ pip install mimid
 from mimid import mock, every, verify
 
 class Calc:
-    def add(self, a, b):
+    def add(self, a: int, b: int) -> int:
         return a + b
 
 def test_add():
@@ -36,7 +36,7 @@ def test_add():
     result = calc_mock.add(2, 2)
     
     assert result == 5
-    verify(calc_mock.add).with_args(2, 2).called_once()
+    verify(calc_mock.add).with_args(2, 2).called()
 ```
 
 ## Why not `unittest.mock`?
