@@ -9,7 +9,7 @@
 
 Mocking library for Python.
 
-**⚠️ This project is under heavy development, API could be unstable.**. 
+**⚠️ This project is under heavy development, API could be unstable.**
 
 ## Installation
 
