@@ -120,6 +120,7 @@ def test_mock_function_call_raises_exception_when_call_is_not_configured():
     with pytest.raises(CallNotConfiguredException):
         func(1)
 
+
 def test_mock_function_call_raises_exception_when_called_with_non_matching_arguments():
     func = mock(function)
     every(func).with_args(1).returns(2)

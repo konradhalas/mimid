@@ -92,6 +92,7 @@ def every(target: Union[MockCallable, Mock, Any]) -> MockAttributeConfigurator:
         return MockAttributeConfigurator(target)
     elif isinstance(target, Mock):
         return MockAttributeConfigurator(target.mock_callable)
+    raise ValueError()
 
 
 def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
@@ -99,6 +100,7 @@ def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
         return MockAttributeVerifier(target)
     elif isinstance(target, Mock):
         return MockAttributeVerifier(target.mock_callable)
+    raise ValueError()
 
 
 class MimidException(Exception):
