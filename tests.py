@@ -14,6 +14,10 @@ def function(param: int) -> int:
     return param
 
 
+class Error(Exception):
+    pass
+
+
 @contextmanager
 def not_raises(exception):
     try:
@@ -103,6 +107,22 @@ def test_mock_method_verify_raises_exception_when_method_called_with_non_matchin
 
     with pytest.raises(NotCalledException):
         verify(obj.method).with_args(1).called()
+
+
+def test_mock_method_call_raises_configured_exception():
+    obj = mock(A)
+    every(obj.method).raises(Error())
+
+    with pytest.raises(Error):
+        obj.method(1)
+
+
+def test_mock_method_call_raises_configured_exception():
+    obj = mock(A)
+    every(obj.method).raises(Error())
+
+    with pytest.raises(Error):
+        obj.method(1)
 
 
 def test_mock_function_call_returns_configured_value():

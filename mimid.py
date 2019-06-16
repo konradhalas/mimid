@@ -13,12 +13,18 @@ class Call:
 
 
 class CallConfiguration:
-    def __init__(self, call: Optional[Call], return_value: Any) -> None:
+    def __init__(self, call: Optional[Call], return_value: Any, exception: Optional[Exception]) -> None:
         self.call = call
+        self.exception = exception
         self.return_value = return_value
 
     def match(self, call: Call) -> bool:
         return not self.call or self.call == call
+
+    def execute(self) -> Any:
+        if self.exception:
+            raise self.exception
+        return self.return_value
 
 
 class MockCallable:
@@ -31,7 +37,7 @@ class MockCallable:
         self.calls.append(call)
         for call_configuration in self.call_configurations:
             if call_configuration.match(call):
-                return call_configuration.return_value
+                return call_configuration.execute()
         raise CallNotConfiguredException()
 
     def add_configuration(self, call_configuration: CallConfiguration) -> None:
@@ -57,17 +63,20 @@ class Mock:
         return self.mock_callable(*args, **kwargs)
 
 
-class MockAttributeConfigurator:
+class MockCallableConfigurator:
     def __init__(self, mock_callable: MockCallable) -> None:
         self.mock_callable = mock_callable
         self.call: Optional[Call] = None
 
-    def with_args(self, *args, **kwargs) -> "MockAttributeConfigurator":
+    def with_args(self, *args, **kwargs) -> "MockCallableConfigurator":
         self.call = Call(args=args, kwargs=kwargs)
         return self
 
     def returns(self, value: Any) -> None:
-        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=value))
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=value, exception=None))
+
+    def raises(self, exception: Exception) -> None:
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=None, exception=exception))
 
 
 class MockAttributeVerifier:
@@ -87,11 +96,11 @@ def mock(target: Type[T]) -> T:
     return cast(T, Mock(target))
 
 
-def every(target: Union[MockCallable, Mock, Any]) -> MockAttributeConfigurator:
+def every(target: Union[MockCallable, Mock, Any]) -> MockCallableConfigurator:
     if isinstance(target, MockCallable):
-        return MockAttributeConfigurator(target)
+        return MockCallableConfigurator(target)
     elif isinstance(target, Mock):
-        return MockAttributeConfigurator(target.mock_callable)
+        return MockCallableConfigurator(target.mock_callable)
     raise ValueError()
 
 
