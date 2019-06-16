@@ -67,7 +67,7 @@ def test_mock_method_call_returns_configured_value_when_called_with_matching_arg
     assert result_2 == 4
 
 
-def test_verify_raises_exception_when_method_not_called():
+def test_mock_method_verify_raises_exception_when_method_not_called():
     obj = mock(A)
     every(obj.method).returns(2)
 
@@ -75,7 +75,7 @@ def test_verify_raises_exception_when_method_not_called():
         verify(obj.method).called()
 
 
-def test_verify_does_not_raise_exception_when_method_called():
+def test_mock_method_verify_does_not_raise_exception_when_method_called():
     obj = mock(A)
     every(obj.method).returns(2)
 
@@ -85,7 +85,7 @@ def test_verify_does_not_raise_exception_when_method_called():
         verify(obj.method).called()
 
 
-def test_verify_does_not_raise_exception_when_method_called_with_matching_arguments():
+def test_mock_method_verify_does_not_raise_exception_when_method_called_with_matching_arguments():
     obj = mock(A)
     every(obj.method).returns(2)
 
@@ -95,7 +95,7 @@ def test_verify_does_not_raise_exception_when_method_called_with_matching_argume
         verify(obj.method).with_args(1).called()
 
 
-def test_verify_raises_exception_when_method_called_with_non_matching_arguments():
+def test_mock_method_verify_raises_exception_when_method_called_with_non_matching_arguments():
     obj = mock(A)
     every(obj.method).returns(2)
 
