@@ -9,7 +9,7 @@
 
 Mocking library for Python.
 
-**⚠️ This project is under development, current version is just a PoC**. 
+**⚠️ This project is under heavy development, API could be unstable.**. 
 
 ## Installation
 
@@ -25,30 +25,37 @@ $ pip install mimid
 ```python
 from mimid import mock, every, verify
 
-class Calc:
-    def add(self, a: int, b: int) -> int:
-        return a + b
+def add(a: int, b: int) -> int:
+    return a + b
 
 def test_add():
-    calc_mock = mock(Calc)
-    every(calc_mock.add).returns(5)    
+    add_mock = mock(add)
+    every(add_mock).returns(5)    
     
-    result = calc_mock.add(2, 2)
+    result = add_mock(2, 2)
     
     assert result == 5
-    verify(calc_mock.add).with_args(2, 2).called()
+    verify(add_mock).with_args(2, 2).called(times=1)
 ```
 
-## Why not `unittest.mock`?
+## Features
+
+Mimid supports following features:
+
+- easy mock behaviour configuration and verification
+- works with classes and plain functions
+- it's fully type hinted - it works with IDE's and type checkers
+- it has clean API, without too much magic
+
+## Why not `mock`?
 
 Python built-in `mock` module is an awesome tool. It's a first choice if you want to mock something in you tests.
 
 However it has a few disadvantages:
 
-- it doesn't work well with modern IDEs (e.g. auto completion)
-- it doesn't work well with type hinted code
-- it's difficult to define different behaviours for different call arguments
-- it allows too much freedom
+- it doesn't work well with modern IDEs (e.g. auto completion) and type checkers
+- it's difficult to define different behaviours for different cases
+- it allows too much freedom, you can do anything with your mock object, even if you didn't define any expectations
 
 ## Authors
 
