@@ -21,9 +21,8 @@ class CallConfiguration:
         return not self.call or self.call == call
 
 
-class MockAttribute:
-    def __init__(self, attr: str) -> None:
-        self.attr = attr
+class MockCallable:
+    def __init__(self) -> None:
         self.call_configurations: List[CallConfiguration] = []
         self.calls: List[Call] = []
 
@@ -35,10 +34,10 @@ class MockAttribute:
                 return call_configuration.return_value
         raise CallNotConfiguredException()
 
-    def add_call_configuration(self, call_configuration: CallConfiguration) -> None:
+    def add_configuration(self, call_configuration: CallConfiguration) -> None:
         self.call_configurations.append(call_configuration)
 
-    def verify_call(self, call: Optional["Call"]) -> None:
+    def verify(self, call: Optional["Call"]) -> None:
         if (not call and not self.calls) or (call and call not in self.calls):
             raise NotCalledException()
 
@@ -46,17 +45,21 @@ class MockAttribute:
 class Mock:
     def __init__(self, target) -> None:
         self.target = target
-        self.mock_attrs: Dict[str, MockAttribute] = {}
+        self.mock_attr_callable: Dict[str, MockCallable] = {}
+        self.mock_callable = MockCallable()
 
-    def __getattr__(self, attr) -> MockAttribute:
-        if attr not in self.mock_attrs:
-            self.mock_attrs[attr] = MockAttribute(attr)
-        return self.mock_attrs[attr]
+    def __getattr__(self, attr) -> MockCallable:
+        if attr not in self.mock_attr_callable:
+            self.mock_attr_callable[attr] = MockCallable()
+        return self.mock_attr_callable[attr]
+
+    def __call__(self, *args, **kwargs):
+        return self.mock_callable(*args, **kwargs)
 
 
 class MockAttributeConfigurator:
-    def __init__(self, mock_attr: MockAttribute) -> None:
-        self.mock_attr = mock_attr
+    def __init__(self, mock_callable: MockCallable) -> None:
+        self.mock_callable = mock_callable
         self.call: Optional[Call] = None
 
     def with_args(self, *args, **kwargs) -> "MockAttributeConfigurator":
@@ -64,12 +67,12 @@ class MockAttributeConfigurator:
         return self
 
     def returns(self, value: Any) -> None:
-        self.mock_attr.add_call_configuration(CallConfiguration(call=self.call, return_value=value))
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=value))
 
 
 class MockAttributeVerifier:
-    def __init__(self, mock_attr: MockAttribute) -> None:
-        self.mock_attr = mock_attr
+    def __init__(self, mock_callable: MockCallable) -> None:
+        self.mock_callable = mock_callable
         self.call: Optional[Call] = None
 
     def with_args(self, *args, **kwargs) -> "MockAttributeVerifier":
@@ -77,19 +80,25 @@ class MockAttributeVerifier:
         return self
 
     def called(self):
-        self.mock_attr.verify_call(self.call)
+        self.mock_callable.verify(self.call)
 
 
 def mock(target: Type[T]) -> T:
     return cast(T, Mock(target))
 
 
-def every(mock_attr: Union[MockAttribute, Any]) -> MockAttributeConfigurator:
-    return MockAttributeConfigurator(mock_attr)
+def every(target: Union[MockCallable, Mock, Any]) -> MockAttributeConfigurator:
+    if isinstance(target, MockCallable):
+        return MockAttributeConfigurator(target)
+    elif isinstance(target, Mock):
+        return MockAttributeConfigurator(target.mock_callable)
 
 
-def verify(mock_attr: Union[MockAttribute, Any]) -> MockAttributeVerifier:
-    return MockAttributeVerifier(mock_attr)
+def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
+    if isinstance(target, MockCallable):
+        return MockAttributeVerifier(target)
+    elif isinstance(target, Mock):
+        return MockAttributeVerifier(target.mock_callable)
 
 
 class MimidException(Exception):
