@@ -1,83 +1,95 @@
-from collections import defaultdict
-from typing import Type, TypeVar, Dict, Optional, cast, NamedTuple, Union, Any
+from typing import TypeVar, Type, Union, Any, Optional, List, Dict, cast
 
 T = TypeVar("T")
 
 
-class Mock:
-    def __init__(self, cls: Type) -> None:
-        self.cls = cls
-        self.mock_attrs: Dict[str, MockAttribute] = {}
+class Call:
+    def __init__(self, args: tuple, kwargs: dict) -> None:
+        self.args = args
+        self.kwargs = kwargs
 
-    def __getattr__(self, attr):
-        if attr not in self.mock_attrs:
-            self.mock_attrs[attr] = MockAttribute(self, attr)
-        return self.mock_attrs[attr]
+    def __eq__(self, other) -> bool:
+        return self.args == other.args and self.kwargs == other.kwargs
+
+
+class CallConfiguration:
+    def __init__(self, call: Optional[Call], return_value: Any) -> None:
+        self.call = call
+        self.return_value = return_value
+
+    def match(self, call: Call) -> bool:
+        return not self.call or self.call == call
 
 
 class MockAttribute:
-    def __init__(self, target: Mock, name: str) -> None:
-        self.name = name
-        self.target = target
-        self.call_configurator = None
-        self.calls: Dict[Call, int] = defaultdict(int)
+    def __init__(self, attr: str) -> None:
+        self.attr = attr
+        self.call_configurations: List[CallConfiguration] = []
+        self.calls: List[Call] = []
 
-    def __call__(self, *args, **kwargs):
-        call = Call(args=args, kwargs=tuple(kwargs.items()))
-        if self.call_configurator is not None and (
-            self.call_configurator.call is None or self.call_configurator.call == call
-        ):
-            self.calls[call] += 1
-            return self.call_configurator.return_value
+    def __call__(self, *args, **kwargs) -> Any:
+        call = Call(args=args, kwargs=kwargs)
+        self.calls.append(call)
+        for call_configuration in self.call_configurations:
+            if call_configuration.match(call):
+                return call_configuration.return_value
         raise CallNotConfiguredException()
 
+    def add_call_configuration(self, call_configuration: CallConfiguration) -> None:
+        self.call_configurations.append(call_configuration)
 
-class Call(NamedTuple):
-    args: tuple
-    kwargs: tuple
-
-
-class CallConfigurator:
-    def __init__(self, mock_attr: MockAttribute) -> None:
-        self.mock_attribute = mock_attr
-        self.call: Optional[Call] = None
-        self.return_value = None
-
-    def with_args(self, *args, **kwargs) -> "CallConfigurator":
-        self.call = Call(args=args, kwargs=tuple(kwargs.items()))
-        return self
-
-    def returns(self, value):
-        self.return_value = value
-        self.mock_attribute.call_configurator = self
+    def verify_call(self, call: Optional["Call"]) -> None:
+        if (not call and not self.calls) or (call and call not in self.calls):
+            raise NotCalledException()
 
 
-class CallVerifier:
+class Mock:
+    def __init__(self, target) -> None:
+        self.target = target
+        self.mock_attrs: Dict[str, MockAttribute] = {}
+
+    def __getattr__(self, attr) -> MockAttribute:
+        if attr not in self.mock_attrs:
+            self.mock_attrs[attr] = MockAttribute(attr)
+        return self.mock_attrs[attr]
+
+
+class MockAttributeConfigurator:
     def __init__(self, mock_attr: MockAttribute) -> None:
         self.mock_attr = mock_attr
         self.call: Optional[Call] = None
 
-    def called(self):
-        if (self.call and self.mock_attr.calls[self.call] == 0) or (
-            not self.call and sum(self.mock_attr.calls.values()) == 0
-        ):
-            raise NotCalledException()
-
-    def with_args(self, *args, **kwargs) -> "CallVerifier":
-        self.call = Call(args=args, kwargs=tuple(kwargs.items()))
+    def with_args(self, *args, **kwargs) -> "MockAttributeConfigurator":
+        self.call = Call(args=args, kwargs=kwargs)
         return self
 
-
-def mock(cls: Type[T]) -> T:
-    return cast(T, Mock(cls))
-
-
-def every(mock_attr: Union[MockAttribute, Any]) -> CallConfigurator:
-    return CallConfigurator(mock_attr)
+    def returns(self, value: Any) -> None:
+        self.mock_attr.add_call_configuration(CallConfiguration(call=self.call, return_value=value))
 
 
-def verify(mock_attr: Union[MockAttribute, Any]) -> CallVerifier:
-    return CallVerifier(mock_attr=mock_attr)
+class MockAttributeVerifier:
+    def __init__(self, mock_attr: MockAttribute) -> None:
+        self.mock_attr = mock_attr
+        self.call: Optional[Call] = None
+
+    def with_args(self, *args, **kwargs) -> "MockAttributeVerifier":
+        self.call = Call(args=args, kwargs=kwargs)
+        return self
+
+    def called(self):
+        self.mock_attr.verify_call(self.call)
+
+
+def mock(target: Type[T]) -> T:
+    return cast(T, Mock(target))
+
+
+def every(mock_attr: Union[MockAttribute, Any]) -> MockAttributeConfigurator:
+    return MockAttributeConfigurator(mock_attr)
+
+
+def verify(mock_attr: Union[MockAttribute, Any]) -> MockAttributeVerifier:
+    return MockAttributeVerifier(mock_attr)
 
 
 class MimidException(Exception):

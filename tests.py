@@ -51,6 +51,18 @@ def test_mock_method_call_returns_configured_value_when_called_with_matching_arg
     assert result == 2
 
 
+def test_mock_method_call_returns_configured_value_when_called_with_matching_arguments_and_multiple_configurations():
+    obj = mock(A)
+    every(obj.method).with_args(1).returns(2)
+    every(obj.method).with_args(3).returns(4)
+
+    result_1 = obj.method(1)
+    result_2 = obj.method(3)
+
+    assert result_1 == 2
+    assert result_2 == 4
+
+
 def test_verify_raises_exception_when_method_not_called():
     obj = mock(A)
     every(obj.method).returns(2)
