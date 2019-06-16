@@ -43,9 +43,14 @@ class MockCallable:
     def add_configuration(self, call_configuration: CallConfiguration) -> None:
         self.call_configurations.append(call_configuration)
 
-    def verify(self, call: Optional["Call"]) -> None:
-        if (not call and not self.calls) or (call and call not in self.calls):
-            raise NotCalledException()
+    def verify(self, call: Optional["Call"], times: Optional[int]) -> None:
+        if (
+            (not call and not self.calls)
+            or (call and times is None and call not in self.calls)
+            or (call and times is not None and self.calls.count(call) != times)
+            or (not call and times is not None and len(self.calls) != times)
+        ):
+            raise WrongNumberOfCallsException()
 
 
 class Mock:
@@ -88,8 +93,8 @@ class MockAttributeVerifier:
         self.call = Call(args=args, kwargs=kwargs)
         return self
 
-    def called(self):
-        self.mock_callable.verify(self.call)
+    def called(self, times: Optional[int] = None):
+        self.mock_callable.verify(call=self.call, times=times)
 
 
 def mock(target: Type[T]) -> T:
@@ -120,5 +125,5 @@ class CallNotConfiguredException(MimidException):
     pass
 
 
-class NotCalledException(MimidException):
+class WrongNumberOfCallsException(MimidException):
     pass
