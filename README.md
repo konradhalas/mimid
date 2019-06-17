@@ -57,8 +57,14 @@ However it has a few disadvantages:
 - it's difficult to define different behaviours for different cases
 - it allows too much freedom, you can do anything with your mock object, even if you didn't define any expectations
 
+## Inspiration
+
+Mimid is highly inspired by mocking frameworks from a JVM world, like [mockito] or [mockk].
+
 ## Authors
 
 Created by [Konrad Hałas][halas-homepage].
 
 [halas-homepage]: https://konradhalas.pl
+[mockito]: https://site.mockito.org
+[mockk]: https://github.com/mockk/mockk
