@@ -61,6 +61,104 @@ However it has a few disadvantages:
 
 Mimid is highly inspired by mocking frameworks from a JVM world, like [mockito] or [mockk].
 
+
+## Usage
+
+There are 3 simple steps in the `mimid` mocking workflow:
+
+1. Creation
+2. Configuration
+3. Verification 
+
+### Creation
+
+You have to use `mock` function to create your mock object. It works both with classes and functions.
+
+Class example:
+
+```python
+from mimid import mock
+
+class A:
+
+    def foo(self, param):
+        pass
+        
+class_mock = mock(A) 
+```
+
+Function example:
+
+```python
+from mimid import mock
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+```
+
+### Configuration
+
+Before you call your mock (function or method) you have to configure its behaviour. Use `every` with additional
+methods (`returns`, `raises`) to define how it should works during your test.
+
+```python
+from mimid import mock, every
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+every(function_mock).returns(1)
+``` 
+
+You can also specify arguments which should trigger defined behaviour.
+
+```python
+from mimid import mock, every
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+every(function_mock).with_args(param=2).returns(1)
+every(function_mock).with_args(param=3).raises(Exception())
+```  
+
+### Verification
+
+At the end of your test you can check if mock was called as expected with `verify`.
+
+```python
+from mimid import mock, every, verify
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+
+... # mock calls
+
+verify(function_mock).called(times=2)
+```
+
+You can use the same `with_args` also during verification step:
+
+```python
+from mimid import mock, every, verify
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+
+... # mock calls
+
+verify(function_mock).with_args(param=1).called(times=2)
+```
+
+
 ## Authors
 
 Created by [Konrad Hałas][halas-homepage].
