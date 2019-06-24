@@ -234,3 +234,13 @@ def test_mock_function_verify_raises_exception_when_method_called_with_non_match
 
     with pytest.raises(WrongNumberOfCallsException):
         verify(func).with_args(1).called()
+
+
+def test_every_should_raises_exception_when_called_with_non_mock_object():
+    with pytest.raises(TypeError):
+        every(1)
+
+
+def test_verify_should_raises_exception_when_called_with_non_mock_object():
+    with pytest.raises(TypeError):
+        verify(1)
