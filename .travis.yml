@@ -6,7 +6,7 @@ python:
 install:
 - pip install -e .[dev]
 script:
-- pytest tests.py --cov=mimid
+- pytest tests --cov=mimid
 - black --check .
 - mypy mimid.py
 - pylint mimid.py
