@@ -20,7 +20,7 @@ def every(target: Union[MockCallable, Mock, Any]) -> MockCallableConfigurator:
 
 def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
     if isinstance(target, MockCallable):
-        return MockAttributeVerifier(target.calls)
+        return MockAttributeVerifier(target.calls_arguments)
     elif isinstance(target, Mock):
-        return MockAttributeVerifier(target.mock_callable.calls)
+        return MockAttributeVerifier(target.mock_callable.calls_arguments)
     raise TypeError()

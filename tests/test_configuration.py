@@ -1,6 +1,6 @@
 import pytest
 
-from mimid import mock, every, CallNotConfiguredException
+from mimid import mock, every, CallNotConfiguredException, gt, lt
 from tests.targets import A, Error, function
 
 
@@ -136,3 +136,15 @@ def test_mock_function_call_returns_result_of_provided_callable():
     result = func(1)
 
     assert result == 2
+
+
+def test_mock_function_call_returns_values_configured_with_matchers():
+    func = mock(function)
+    every(func).with_args(gt(0)).returns(1)
+    # every(func).with_args(lt(0)).returns(2)
+
+    result_1 = func(10)
+    # result_2 = func(-10)
+
+    assert result_1 == 1
+    # assert result_2 == 2
