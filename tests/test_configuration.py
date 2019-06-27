@@ -105,3 +105,25 @@ def test_mock_function_call_returns_configured_value_when_called_with_matching_a
 def test_every_should_raises_exception_when_called_with_non_mock_object():
     with pytest.raises(TypeError):
         every(1)
+
+
+def test_mock_function_call_returns_multiple_values():
+    func = mock(function)
+    every(func).returns_many([1, 2])
+
+    result_1 = func(1)
+    result_2 = func(1)
+
+    assert result_1 == 1
+    assert result_2 == 2
+
+
+def test_mock_function_call_returns_last_value_when_called_more_times():
+    func = mock(function)
+    every(func).returns_many([1, 2])
+    func(1)
+    func(1)
+
+    result = func()
+
+    assert result == 2

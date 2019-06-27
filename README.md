@@ -124,7 +124,15 @@ def foo(param):
 function_mock = mock(foo)
 every(function_mock).with_args(param=2).returns(1)
 every(function_mock).with_args(param=3).raises(Exception())
-```  
+```
+
+Available configurations:
+
+| Configuration    | Description                           |
+| ---------------- | ------------------------------------- |
+| `returns`        | return given value                    |
+| `returns_many`   | return each value from provided list  |
+| `raises`         | raise given exception                 | 
 
 ### Verification
 

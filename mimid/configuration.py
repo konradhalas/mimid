@@ -5,10 +5,12 @@ from mimid.exceptions import CallNotConfiguredException
 
 
 class CallConfiguration:
-    def __init__(self, call: Optional[Call], return_value: Any, exception: Optional[Exception]) -> None:
+    def __init__(
+        self, call: Optional[Call], return_values: Optional[List[Any]] = None, exception: Optional[Exception] = None
+    ) -> None:
         self.call = call
         self.exception = exception
-        self.return_value = return_value
+        self.return_values = return_values
 
     def match(self, call: Call) -> bool:
         return not self.call or self.call == call
@@ -16,7 +18,10 @@ class CallConfiguration:
     def execute(self) -> Any:
         if self.exception:
             raise self.exception
-        return self.return_value
+        if len(self.return_values) > 1:
+            return self.return_values.pop(0)
+        else:
+            return self.return_values[0]
 
 
 class MockCallable:
@@ -61,7 +66,10 @@ class MockCallableConfigurator:
         return self
 
     def returns(self, value: Any) -> None:
-        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=value, exception=None))
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_values=[value]))
 
     def raises(self, exception: Exception) -> None:
-        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=None, exception=exception))
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, exception=exception))
+
+    def returns_many(self, values: List[Any]) -> None:
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_values=values))
