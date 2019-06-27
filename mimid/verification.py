@@ -1,7 +1,7 @@
-from typing import Optional, Union, Any, List
+from typing import Optional, List
 
+from mimid.common import Call
 from mimid.exceptions import WrongNumberOfCallsException
-from mimid.configuration import MockCallable, Mock, Call
 
 
 class MockAttributeVerifier:
@@ -21,11 +21,3 @@ class MockAttributeVerifier:
             or (not self.call and times is not None and len(self.calls) != times)
         ):
             raise WrongNumberOfCallsException()
-
-
-def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
-    if isinstance(target, MockCallable):
-        return MockAttributeVerifier(target.calls)
-    elif isinstance(target, Mock):
-        return MockAttributeVerifier(target.mock_callable.calls)
-    raise TypeError()

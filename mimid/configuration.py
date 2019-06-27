@@ -1,15 +1,7 @@
-from typing import Optional, Any, List, Union, Dict, cast, Type, TypeVar
+from typing import Optional, Any, List, Dict
 
+from mimid.common import Call
 from mimid.exceptions import CallNotConfiguredException
-
-
-class Call:
-    def __init__(self, args: tuple, kwargs: dict) -> None:
-        self.args = args
-        self.kwargs = kwargs
-
-    def __eq__(self, other) -> bool:
-        return self.args == other.args and self.kwargs == other.kwargs
 
 
 class CallConfiguration:
@@ -45,12 +37,12 @@ class MockCallable:
 
 
 class Mock:
-    def __init__(self, target) -> None:
+    def __init__(self, target: Any) -> None:
         self.target = target
         self.mock_attr_callable: Dict[str, MockCallable] = {}
         self.mock_callable = MockCallable()
 
-    def __getattr__(self, attr) -> MockCallable:
+    def __getattr__(self, attr: str) -> MockCallable:
         if attr not in self.mock_attr_callable:
             self.mock_attr_callable[attr] = MockCallable()
         return self.mock_attr_callable[attr]
@@ -73,18 +65,3 @@ class MockCallableConfigurator:
 
     def raises(self, exception: Exception) -> None:
         self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=None, exception=exception))
-
-
-T = TypeVar("T")
-
-
-def mock(target: Type[T]) -> T:
-    return cast(T, Mock(target))
-
-
-def every(target: Union[MockCallable, Mock, Any]) -> MockCallableConfigurator:
-    if isinstance(target, MockCallable):
-        return MockCallableConfigurator(target)
-    elif isinstance(target, Mock):
-        return MockCallableConfigurator(target.mock_callable)
-    raise TypeError()
