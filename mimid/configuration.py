@@ -1,6 +1,6 @@
 from typing import Optional, Any, List, Union, Dict, cast, Type, TypeVar
 
-from mimid.exceptions import CallNotConfiguredException, WrongNumberOfCallsException
+from mimid.exceptions import CallNotConfiguredException
 
 
 class Call:
@@ -42,15 +42,6 @@ class MockCallable:
 
     def add_configuration(self, call_configuration: CallConfiguration) -> None:
         self.call_configurations.append(call_configuration)
-
-    def verify(self, call: Optional["Call"], times: Optional[int]) -> None:
-        if (
-            (not call and not self.calls)
-            or (call and times is None and call not in self.calls)
-            or (call and times is not None and self.calls.count(call) != times)
-            or (not call and times is not None and len(self.calls) != times)
-        ):
-            raise WrongNumberOfCallsException()
 
 
 class Mock:
