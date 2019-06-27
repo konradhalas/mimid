@@ -133,6 +133,7 @@ Available configurations:
 | `returns`        | return given value                    |
 | `returns_many`   | return each value from provided list  |
 | `raises`         | raise given exception                 | 
+| `execute`        | call given callable                   | 
 
 ### Verification
 

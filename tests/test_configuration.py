@@ -127,3 +127,12 @@ def test_mock_function_call_returns_last_value_when_called_more_times():
     result = func()
 
     assert result == 2
+
+
+def test_mock_function_call_returns_result_of_provided_callable():
+    func = mock(function)
+    every(func).execute(lambda: 2)
+
+    result = func(1)
+
+    assert result == 2

@@ -1,4 +1,4 @@
-from typing import Optional, Any, List, Dict
+from typing import Optional, Any, List, Dict, Callable
 
 from mimid.common import Call
 from mimid.exceptions import CallNotConfiguredException
@@ -6,11 +6,16 @@ from mimid.exceptions import CallNotConfiguredException
 
 class CallConfiguration:
     def __init__(
-        self, call: Optional[Call], return_values: Optional[List[Any]] = None, exception: Optional[Exception] = None
+        self,
+        call: Optional[Call],
+        return_values: Optional[List[Any]] = None,
+        exception: Optional[Exception] = None,
+        callable: Optional[Callable[[], Any]] = None,
     ) -> None:
         self.call = call
         self.exception = exception
         self.return_values = return_values
+        self.callable = callable
 
     def match(self, call: Call) -> bool:
         return not self.call or self.call == call
@@ -18,11 +23,14 @@ class CallConfiguration:
     def execute(self) -> Any:
         if self.exception is not None:
             raise self.exception
-        elif self.return_values is not None:
+        if self.return_values is not None:
             if len(self.return_values) > 1:
                 return self.return_values.pop(0)
             else:
                 return self.return_values[0]
+        if self.callable is not None:
+            return self.callable()
+        raise ValueError("Wrong configuration")
 
 
 class MockCallable:
@@ -74,3 +82,6 @@ class MockCallableConfigurator:
 
     def returns_many(self, values: List[Any]) -> None:
         self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_values=values))
+
+    def execute(self, callable: Callable[[], Any]):
+        self.mock_callable.add_configuration(CallConfiguration(call=self.call, callable=callable))
