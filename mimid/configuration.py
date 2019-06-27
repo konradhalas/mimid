@@ -16,12 +16,13 @@ class CallConfiguration:
         return not self.call or self.call == call
 
     def execute(self) -> Any:
-        if self.exception:
+        if self.exception is not None:
             raise self.exception
-        if len(self.return_values) > 1:
-            return self.return_values.pop(0)
-        else:
-            return self.return_values[0]
+        elif self.return_values is not None:
+            if len(self.return_values) > 1:
+                return self.return_values.pop(0)
+            else:
+                return self.return_values[0]
 
 
 class MockCallable:
