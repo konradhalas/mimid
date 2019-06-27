@@ -8,8 +8,8 @@ install:
 script:
 - pytest tests --cov=mimid
 - black --check .
-- mypy mimid.py
-- pylint mimid.py
+- mypy mimid
+- pylint mimid
 after_success:
   coveralls
 stages:

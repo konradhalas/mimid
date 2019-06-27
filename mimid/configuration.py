@@ -1,6 +1,6 @@
-from typing import TypeVar, Type, Union, Any, Optional, List, Dict, cast
+from typing import Optional, Any, List, Union, Dict, cast, Type, TypeVar
 
-T = TypeVar("T")
+from mimid.exceptions import CallNotConfiguredException, WrongNumberOfCallsException
 
 
 class Call:
@@ -84,17 +84,7 @@ class MockCallableConfigurator:
         self.mock_callable.add_configuration(CallConfiguration(call=self.call, return_value=None, exception=exception))
 
 
-class MockAttributeVerifier:
-    def __init__(self, mock_callable: MockCallable) -> None:
-        self.mock_callable = mock_callable
-        self.call: Optional[Call] = None
-
-    def with_args(self, *args, **kwargs) -> "MockAttributeVerifier":
-        self.call = Call(args=args, kwargs=kwargs)
-        return self
-
-    def called(self, times: Optional[int] = None):
-        self.mock_callable.verify(call=self.call, times=times)
+T = TypeVar("T")
 
 
 def mock(target: Type[T]) -> T:
@@ -107,23 +97,3 @@ def every(target: Union[MockCallable, Mock, Any]) -> MockCallableConfigurator:
     elif isinstance(target, Mock):
         return MockCallableConfigurator(target.mock_callable)
     raise TypeError()
-
-
-def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
-    if isinstance(target, MockCallable):
-        return MockAttributeVerifier(target)
-    elif isinstance(target, Mock):
-        return MockAttributeVerifier(target.mock_callable)
-    raise TypeError()
-
-
-class MimidException(Exception):
-    pass
-
-
-class CallNotConfiguredException(MimidException):
-    pass
-
-
-class WrongNumberOfCallsException(MimidException):
-    pass
