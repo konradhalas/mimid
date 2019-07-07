@@ -2,7 +2,7 @@ import abc
 from typing import Tuple, Dict, Union, Any
 
 from mimid.common import CallArguments
-from mimid.matchers.value import ValueMatcher, eq
+from mimid.matchers.value import ValueMatcher
 
 
 class CallArgumentsMatcher(abc.ABC):

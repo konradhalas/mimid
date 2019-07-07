@@ -3,7 +3,7 @@ from typing import List, Union
 from mimid.common import CallArguments
 from mimid.exceptions import WrongNumberOfCallsException
 from mimid.matchers.call import SpecificCallArgumentsMatcher, AnyCallArgumentsMatcher, CallArgumentsMatcher
-from mimid.matchers.value import ValueMatcher, any, gt
+from mimid.matchers.value import ValueMatcher, gt
 
 
 class MockAttributeVerifier:

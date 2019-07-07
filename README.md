@@ -190,6 +190,28 @@ verify(function_mock).with_args(lt(20)).called(times=gte(1))
 
 ```
 
+`capture` is a special matcher - it behaves like `any()` but additionally it 
+stores given argument in provided slot.
+
+Example:
+
+```python
+from mimid import mock, every, slot, capture
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+param_slot = slot()
+every(function_mock).with_args(capture(param_slot)).execute(lambda: param_slot.value + 1)
+
+result = function_mock(1)
+
+assert result == 2
+assert param_slot.value == 1
+
+```
+
 Available matchers:
 
 | Matcher          | Description                           |
@@ -200,6 +222,7 @@ Available matchers:
 | `lte`            | match lower or equal value            | 
 | `gt`             | match greater value                   | 
 | `gte`            | match greater or equal value          | 
+| `capture`        | capture provided argument             | 
 
 ## Authors
 

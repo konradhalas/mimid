@@ -1,6 +1,8 @@
 import abc
 from typing import Any
 
+from mimid.exceptions import ValueNotCapturedException
+
 
 class ValueMatcher(abc.ABC):
     @abc.abstractmethod
@@ -57,3 +59,30 @@ class lte(ValueMatcher):
 
     def __call__(self, other: Any) -> bool:
         return other <= self.value
+
+
+EMPTY_VALUE = object()
+
+
+class CaptureSlot:
+    def __init__(self):
+        self._value = EMPTY_VALUE
+
+    @property
+    def value(self):
+        if self._value is EMPTY_VALUE:
+            raise ValueNotCapturedException()
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+
+
+class capture(ValueMatcher):
+    def __init__(self, slot: CaptureSlot) -> None:
+        self.slot = slot
+
+    def __call__(self, other: Any) -> bool:
+        self.slot.value = other
+        return True

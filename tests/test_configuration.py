@@ -1,6 +1,6 @@
 import pytest
 
-from mimid import mock, every, CallNotConfiguredException, gt, lt
+from mimid import mock, every, CallNotConfiguredException, gt, lt, slot, capture
 from tests.targets import A, Error, function
 
 
@@ -136,6 +136,17 @@ def test_mock_function_call_returns_result_of_provided_callable():
     result = func(1)
 
     assert result == 2
+
+
+def test_mock_function_call_returns_result_of_provided_callable_with_captured_arg():
+    func = mock(function)
+    arg_slot = slot()
+    every(func).with_args(capture(arg_slot)).execute(lambda: arg_slot.value + 1)
+
+    result = func(1)
+
+    assert result == 2
+    assert arg_slot.value == 1
 
 
 def test_mock_function_call_returns_values_configured_with_matchers():

@@ -8,3 +8,7 @@ class CallNotConfiguredException(MimidException):
 
 class WrongNumberOfCallsException(MimidException):
     pass
+
+
+class ValueNotCapturedException(MimidException):
+    pass

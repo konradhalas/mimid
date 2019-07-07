@@ -1,5 +1,6 @@
 from typing import Union, Any, Type, TypeVar, cast
 
+from mimid.matchers.value import CaptureSlot
 from mimid.configuration import MockCallable, Mock, MockCallableConfigurator
 from mimid.verification import MockAttributeVerifier
 
@@ -24,3 +25,7 @@ def verify(target: Union[MockCallable, Mock, Any]) -> MockAttributeVerifier:
     elif isinstance(target, Mock):
         return MockAttributeVerifier(target.mock_callable.calls_arguments)
     raise TypeError()
+
+
+def slot() -> CaptureSlot:
+    return CaptureSlot()
