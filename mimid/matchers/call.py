@@ -1,0 +1,35 @@
+from typing import Tuple, Dict, Union, Any
+
+from mimid.common import CallArguments
+from mimid.matchers.value import ValueMatcher, eq
+
+
+class CallArgumentsMatcher:
+    def __init__(self, args: Tuple[ValueMatcher, ...], kwargs: Dict[str, ValueMatcher]) -> None:
+        self.args = args
+        self.kwargs = kwargs
+
+    def match(self, arguments: CallArguments) -> bool:
+        if len(self.args) != len(arguments.args):
+            return False
+        for arg_matcher, arg in zip(self.args, arguments.args):
+            if not arg_matcher(arg):
+                return False
+        if self.kwargs.keys() != arguments.kwargs.keys():
+            return False
+        for arg_name, value in arguments.kwargs.items():
+            arg_matcher = self.kwargs[arg_name]
+            if not arg_matcher(value):
+                return False
+        return True
+
+    @staticmethod
+    def from_values_and_matchers(
+        args: Tuple[Union[ValueMatcher, Any], ...], kwargs: Dict[str, Union[ValueMatcher, Any]]
+    ) -> "CallArgumentsMatcher":
+        args_matchers = []
+        for arg in args:
+            if not isinstance(arg, ValueMatcher):
+                arg = eq(arg)
+            args_matchers.append(arg)
+        return CallArgumentsMatcher(args=tuple(args_matchers), kwargs=kwargs)

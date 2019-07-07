@@ -1,23 +1,8 @@
-from typing import Optional, Any, List, Dict, Callable, Tuple
+from typing import Optional, Any, List, Dict, Callable
 
 from mimid.common import CallArguments
 from mimid.exceptions import CallNotConfiguredException
-from mimid.matchers import Matcher
-
-
-class CallArgumentsMatcher:
-    def __init__(self, args: Tuple[Matcher, ...], kwargs: Dict[str, Matcher]) -> None:
-        self.args = args
-        self.kwargs = kwargs
-
-    def match(self, arguments: CallArguments) -> bool:
-        # TODO: handle kwargs and different size of args/kwargs
-        for arg_matcher, arg in zip(self.args, arguments.args):
-            if isinstance(arg_matcher, Matcher) and not arg_matcher(arg):
-                return False
-            elif not isinstance(arg_matcher, Matcher) and arg_matcher != arg:
-                return False
-        return True
+from mimid.matchers.call import CallArgumentsMatcher
 
 
 class CallConfiguration:
@@ -87,7 +72,7 @@ class MockCallableConfigurator:
         self.call_arguments_matcher: Optional[CallArgumentsMatcher] = None  # TODO: create empty matcher instead of None
 
     def with_args(self, *args, **kwargs) -> "MockCallableConfigurator":
-        self.call_arguments_matcher = CallArgumentsMatcher(args=args, kwargs=kwargs)
+        self.call_arguments_matcher = CallArgumentsMatcher.from_values_and_matchers(args=args, kwargs=kwargs)
         return self
 
     def returns(self, value: Any) -> None:

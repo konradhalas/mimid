@@ -1,4 +1,4 @@
-from mimid import gt, lt
+from mimid.matchers.value import gt, lt, eq
 
 
 def test_gt():
@@ -9,3 +9,8 @@ def test_gt():
 def test_lt():
     assert lt(0)(-1)
     assert not lt(0)(1)
+
+
+def test_eq():
+    assert eq(0)(0)
+    assert not eq(0)(1)
