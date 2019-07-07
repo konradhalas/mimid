@@ -15,25 +15,8 @@ class ValueMatcher(abc.ABC):
 
 
 class any(ValueMatcher):
-
     def __call__(self, _: Any) -> bool:
         return True
-
-
-class gt(ValueMatcher):
-    def __init__(self, value: Any):
-        self.value = value
-
-    def __call__(self, other: Any) -> bool:
-        return self.value < other
-
-
-class lt(ValueMatcher):
-    def __init__(self, value: Any):
-        self.value = value
-
-    def __call__(self, other: Any) -> bool:
-        return self.value > other
 
 
 class eq(ValueMatcher):
@@ -41,4 +24,36 @@ class eq(ValueMatcher):
         self.value = value
 
     def __call__(self, other: Any) -> bool:
-        return self.value == other
+        return other == self.value
+
+
+class gt(ValueMatcher):
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __call__(self, other: Any) -> bool:
+        return other > self.value
+
+
+class gte(ValueMatcher):
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __call__(self, other: Any) -> bool:
+        return other >= self.value
+
+
+class lt(ValueMatcher):
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __call__(self, other: Any) -> bool:
+        return other < self.value
+
+
+class lte(ValueMatcher):
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __call__(self, other: Any) -> bool:
+        return other <= self.value

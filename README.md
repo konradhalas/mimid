@@ -7,7 +7,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/mimid.svg)](https://pypi.python.org/pypi/mimid/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-Mocking library for Python.
+Modern mocking library for Python.
 
 **⚠️ This project is under heavy development, API could be unstable.**
 
@@ -23,7 +23,7 @@ $ pip install mimid
 
 
 ```python
-from mimid import mock, every, verify
+from mimid import mock, every, verify, any, gt
 
 def add(a: int, b: int) -> int:
     return a + b
@@ -35,7 +35,7 @@ def test_add():
     result = add_mock(2, 2)
     
     assert result == 5
-    verify(add_mock).with_args(2, 2).called(times=1)
+    verify(add_mock).with_args(any(), gt(0)).called(times=1)
 ```
 
 ## Features
@@ -44,31 +44,32 @@ Mimid supports following features:
 
 - easy mock behaviour configuration and verification
 - works with classes and plain functions
-- it's fully type hinted - it works with IDE's and type checkers
-- it has clean API, without too much magic
+- fully type hinted - it works with IDE's and type checkers
+- clean API, without too much magic
 
 ## Why not `mock`?
 
-Python built-in `mock` module is an awesome tool. It's a first choice if you want to mock something in you tests.
+Python built-in `mock` module is an awesome tool. It's a first choice if you want to mock something in your tests.
 
 However it has a few disadvantages:
 
 - it doesn't work well with modern IDEs (e.g. auto completion) and type checkers
 - it's difficult to define different behaviours for different cases
-- it allows too much freedom, you can do anything with your mock object, even if you didn't define any expectations
+- it allows too much freedom, you can do anything with your mock object, even if you didn't define any behaviour
 
 ## Inspiration
 
 Mimid is highly inspired by mocking frameworks from a JVM world, like [mockito] or [mockk].
 
-
 ## Usage
 
 There are 3 simple steps in the `mimid` mocking workflow:
 
-1. Creation
-2. Configuration
-3. Verification 
+1. [Creation](#creation)
+2. [Configuration](#configuration)
+3. [Verification](#verification)
+
+Additionally you can use [matchers](#matchers) in both configuration and verification steps. 
 
 ### Creation
 
@@ -140,7 +141,7 @@ Available configurations:
 At the end of your test you can check if mock was called as expected with `verify`.
 
 ```python
-from mimid import mock, every, verify
+from mimid import mock, verify
 
 def foo(param):
     pass
@@ -167,6 +168,38 @@ function_mock = mock(foo)
 verify(function_mock).with_args(param=1).called(times=2)
 ```
 
+### Matchers
+
+You can use matchers during configuration (`with_args`) and verification (`with_args`, `called`) steps.
+
+Example:
+
+```python
+from mimid import mock, every, verify, gt, lt, gte
+
+def foo(param):
+    pass
+
+function_mock = mock(foo)
+every(function_mock).with_args(gt(0)).returns(1)
+
+result = function_mock(10)
+
+assert result == 1
+verify(function_mock).with_args(lt(20)).called(times=gte(1))
+
+```
+
+Available matchers:
+
+| Matcher          | Description                           |
+| ---------------- | ------------------------------------- |
+| `any`            | match any value                       |
+| `eq`             | match equal value                     |
+| `lt`             | match lower value                     | 
+| `lte`            | match lower or equal value            | 
+| `gt`             | match greater value                   | 
+| `gte`            | match greater or equal value          | 
 
 ## Authors
 
