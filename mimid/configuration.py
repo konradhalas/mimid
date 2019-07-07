@@ -2,13 +2,13 @@ from typing import Optional, Any, List, Dict, Callable
 
 from mimid.common import CallArguments
 from mimid.exceptions import CallNotConfiguredException
-from mimid.matchers.call import CallArgumentsMatcher
+from mimid.matchers.call import SpecificCallArgumentsMatcher, AnyCallArgumentsMatcher, CallArgumentsMatcher
 
 
 class CallConfiguration:
     def __init__(
         self,
-        call_arguments_matcher: Optional[CallArgumentsMatcher],
+        call_arguments_matcher: CallArgumentsMatcher,
         return_values: Optional[List[Any]] = None,
         exception: Optional[Exception] = None,
         callable: Optional[Callable[[], Any]] = None,
@@ -19,7 +19,7 @@ class CallConfiguration:
         self.callable = callable
 
     def match(self, call_arguments: CallArguments) -> bool:
-        return not self.call_arguments_matcher or self.call_arguments_matcher.match(call_arguments)
+        return self.call_arguments_matcher.match(call_arguments)
 
     def execute(self) -> Any:
         if self.exception is not None:
@@ -69,10 +69,10 @@ class Mock:
 class MockCallableConfigurator:
     def __init__(self, mock_callable: MockCallable) -> None:
         self.mock_callable = mock_callable
-        self.call_arguments_matcher: Optional[CallArgumentsMatcher] = None  # TODO: create empty matcher instead of None
+        self.call_arguments_matcher: CallArgumentsMatcher = AnyCallArgumentsMatcher()
 
     def with_args(self, *args, **kwargs) -> "MockCallableConfigurator":
-        self.call_arguments_matcher = CallArgumentsMatcher.from_values_and_matchers(args=args, kwargs=kwargs)
+        self.call_arguments_matcher = SpecificCallArgumentsMatcher.from_values_and_matchers(args=args, kwargs=kwargs)
         return self
 
     def returns(self, value: Any) -> None:

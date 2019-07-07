@@ -1,10 +1,17 @@
+import abc
 from typing import Tuple, Dict, Union, Any
 
 from mimid.common import CallArguments
 from mimid.matchers.value import ValueMatcher, eq
 
 
-class CallArgumentsMatcher:
+class CallArgumentsMatcher(abc.ABC):
+    @abc.abstractmethod
+    def match(self, arguments: CallArguments) -> bool:
+        pass
+
+
+class SpecificCallArgumentsMatcher(CallArgumentsMatcher):
     def __init__(self, args: Tuple[ValueMatcher, ...], kwargs: Dict[str, ValueMatcher]) -> None:
         self.args = args
         self.kwargs = kwargs
@@ -26,10 +33,15 @@ class CallArgumentsMatcher:
     @staticmethod
     def from_values_and_matchers(
         args: Tuple[Union[ValueMatcher, Any], ...], kwargs: Dict[str, Union[ValueMatcher, Any]]
-    ) -> "CallArgumentsMatcher":
+    ) -> "SpecificCallArgumentsMatcher":
         args_matchers = []
         for arg in args:
             if not isinstance(arg, ValueMatcher):
                 arg = eq(arg)
             args_matchers.append(arg)
-        return CallArgumentsMatcher(args=tuple(args_matchers), kwargs=kwargs)
+        return SpecificCallArgumentsMatcher(args=tuple(args_matchers), kwargs=kwargs)
+
+
+class AnyCallArgumentsMatcher(CallArgumentsMatcher):
+    def match(self, arguments: CallArguments) -> bool:
+        return True
