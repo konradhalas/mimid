@@ -34,11 +34,7 @@ class SpecificCallArgumentsMatcher(CallArgumentsMatcher):
     def from_values_and_matchers(
         args: Tuple[Union[ValueMatcher, Any], ...], kwargs: Dict[str, Union[ValueMatcher, Any]]
     ) -> "SpecificCallArgumentsMatcher":
-        args_matchers = []
-        for arg in args:
-            if not isinstance(arg, ValueMatcher):
-                arg = eq(arg)
-            args_matchers.append(arg)
+        args_matchers = [ValueMatcher.from_maybe_value(arg) for arg in args]
         return SpecificCallArgumentsMatcher(args=tuple(args_matchers), kwargs=kwargs)
 
 

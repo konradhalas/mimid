@@ -7,6 +7,18 @@ class ValueMatcher(abc.ABC):
     def __call__(self, other: Any) -> bool:
         pass
 
+    @staticmethod
+    def from_maybe_value(value) -> "ValueMatcher":
+        if not isinstance(value, ValueMatcher):
+            value = eq(value)
+        return value
+
+
+class any(ValueMatcher):
+
+    def __call__(self, _: Any) -> bool:
+        return True
+
 
 class gt(ValueMatcher):
     def __init__(self, value: Any):

@@ -1,8 +1,9 @@
-from typing import Optional, List
+from typing import List, Union
 
 from mimid.common import CallArguments
-from mimid.matchers.call import SpecificCallArgumentsMatcher, AnyCallArgumentsMatcher, CallArgumentsMatcher
 from mimid.exceptions import WrongNumberOfCallsException
+from mimid.matchers.call import SpecificCallArgumentsMatcher, AnyCallArgumentsMatcher, CallArgumentsMatcher
+from mimid.matchers.value import ValueMatcher, any, gt
 
 
 class MockAttributeVerifier:
@@ -14,10 +15,11 @@ class MockAttributeVerifier:
         self.call_arguments_matcher = SpecificCallArgumentsMatcher.from_values_and_matchers(args=args, kwargs=kwargs)
         return self
 
-    def called(self, times: Optional[int] = None):
+    def called(self, times: Union[int, ValueMatcher] = gt(0)):
+        times_matcher = ValueMatcher.from_maybe_value(times)
         matches = 0
         for call_arguments in self.calls_arguments:
             if self.call_arguments_matcher.match(call_arguments):
                 matches += 1
-        if (times is None and matches == 0) or (times is not None and matches != times):
+        if not times_matcher(matches):
             raise WrongNumberOfCallsException()
