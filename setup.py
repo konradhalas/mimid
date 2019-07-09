@@ -24,6 +24,6 @@ setup(
     ],
     python_requires=">=3.6",
     keywords="testing mocking",
-    py_modules=["mimid"],
+    packages=["mimid", "mimid.matchers"],
     extras_require={"dev": ["pytest>=4", "pytest-cov", "coveralls", "black", "mypy", "pylint"]},
 )
