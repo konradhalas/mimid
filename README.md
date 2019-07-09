@@ -102,7 +102,7 @@ function_mock = mock(foo)
 ### Configuration
 
 Before you call your mock (function or method) you have to configure its behaviour. Use `every` with additional
-methods (`returns`, `raises`) to define how it should works during your test.
+methods (`returns`, `raises`, ...) to define how it should works during your test.
 
 ```python
 from mimid import mock, every
@@ -170,7 +170,7 @@ verify(function_mock).with_args(param=1).called(times=2)
 
 ### Matchers
 
-You can use matchers during configuration (`with_args`) and verification (`with_args`, `called`) steps.
+You can use matchers during configuration (`with_args`) and verification (`with_args`, `called`) steps. You can also combine matchers with `|` or `&` and negate it with `~`.
 
 Example:
 
@@ -186,7 +186,7 @@ every(function_mock).with_args(gt(0)).returns(1)
 result = function_mock(10)
 
 assert result == 1
-verify(function_mock).with_args(lt(20)).called(times=gte(1))
+verify(function_mock).with_args(gt(5) | lt(15)).called(times=gte(1))
 
 ```
 

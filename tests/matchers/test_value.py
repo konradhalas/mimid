@@ -1,7 +1,7 @@
 import pytest
 
 from mimid import ValueNotCapturedException
-from mimid.matchers.value import gt, eq, any, gte, lte, CaptureSlot, capture
+from mimid.matchers.value import gt, eq, any, gte, lte, CaptureSlot, capture, lt
 
 
 def test_any():
@@ -24,7 +24,7 @@ def test_gte():
     assert not gte(0)(-1)
 
 
-def test_ltt():
+def test_lte():
     assert lte(0)(0)
     assert lte(0)(-1)
     assert not lte(0)(1)
@@ -45,3 +45,26 @@ def test_capture_slot_raises_exception_when_not_captured():
 
     with pytest.raises(ValueNotCapturedException):
         slot.value
+
+
+def test_or_matcher():
+    matcher = eq(0) | eq(1)
+
+    assert matcher(0)
+    assert matcher(1)
+    assert not matcher(2)
+
+
+def test_and_matcher():
+    matcher = gt(0) & lt(2)
+
+    assert matcher(1)
+    assert not matcher(0)
+    assert not matcher(2)
+
+
+def test_not_matcher():
+    matcher = ~eq(0)
+
+    assert not matcher(0)
+    assert matcher(1)

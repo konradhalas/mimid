@@ -15,6 +15,41 @@ class ValueMatcher(abc.ABC):
             value = eq(value)
         return value
 
+    def __or__(self, other: "ValueMatcher") -> "ValueMatcher":
+        return OrValueMatcher(self, other)
+
+    def __and__(self, other: "ValueMatcher") -> "ValueMatcher":
+        return AndValueMatcher(self, other)
+
+    def __invert__(self) -> "ValueMatcher":
+        return NotValueMatcher(self)
+
+
+class OrValueMatcher(ValueMatcher):
+    def __init__(self, first: ValueMatcher, second: ValueMatcher) -> None:
+        self.first = first
+        self.second = second
+
+    def __call__(self, value: Any) -> bool:
+        return self.first(value) or self.second(value)
+
+
+class AndValueMatcher(ValueMatcher):
+    def __init__(self, first: ValueMatcher, second: ValueMatcher) -> None:
+        self.first = first
+        self.second = second
+
+    def __call__(self, value: Any) -> bool:
+        return self.first(value) and self.second(value)
+
+
+class NotValueMatcher(ValueMatcher):
+    def __init__(self, matcher: ValueMatcher) -> None:
+        self.matcher = matcher
+
+    def __call__(self, value: Any) -> bool:
+        return not self.matcher(value)
+
 
 class any(ValueMatcher):
     def __call__(self, _: Any) -> bool:
@@ -25,40 +60,40 @@ class eq(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
-    def __call__(self, other: Any) -> bool:
-        return other == self.value
+    def __call__(self, value: Any) -> bool:
+        return value == self.value
 
 
 class gt(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
-    def __call__(self, other: Any) -> bool:
-        return other > self.value
+    def __call__(self, value: Any) -> bool:
+        return value > self.value
 
 
 class gte(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
-    def __call__(self, other: Any) -> bool:
-        return other >= self.value
+    def __call__(self, value: Any) -> bool:
+        return value >= self.value
 
 
 class lt(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
-    def __call__(self, other: Any) -> bool:
-        return other < self.value
+    def __call__(self, value: Any) -> bool:
+        return value < self.value
 
 
 class lte(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
-    def __call__(self, other: Any) -> bool:
-        return other <= self.value
+    def __call__(self, value: Any) -> bool:
+        return value <= self.value
 
 
 EMPTY_VALUE = object()
@@ -83,6 +118,6 @@ class capture(ValueMatcher):
     def __init__(self, slot: CaptureSlot) -> None:
         self.slot = slot
 
-    def __call__(self, other: Any) -> bool:
-        self.slot.value = other
+    def __call__(self, value: Any) -> bool:
+        self.slot.value = value
         return True
