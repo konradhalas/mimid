@@ -33,6 +33,16 @@ def test_mock_method_verify_does_not_raise_exception_when_method_called_with_mat
         verify(obj.method).with_args(1).called()
 
 
+def test_mock_method_verify_does_not_raise_exception_when_method_called_with_matching_kwargs_arguments():
+    obj = mock(A)
+    every(obj.method).returns(2)
+
+    obj.method(param=1)
+
+    with not_raises(WrongNumberOfCallsException):
+        verify(obj.method).with_args(param=1).called()
+
+
 def test_mock_method_verify_raises_exception_when_method_called_with_non_matching_arguments():
     obj = mock(A)
     every(obj.method).returns(2)
