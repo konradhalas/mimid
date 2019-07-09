@@ -12,7 +12,7 @@ class ValueMatcher(abc.ABC):
     @staticmethod
     def from_maybe_value(value) -> "ValueMatcher":
         if not isinstance(value, ValueMatcher):
-            value = eq(value)
+            value = EqualValueMatcher(value)
         return value
 
     def __or__(self, other: "ValueMatcher") -> "ValueMatcher":
@@ -51,12 +51,12 @@ class NotValueMatcher(ValueMatcher):
         return not self.matcher(value)
 
 
-class any(ValueMatcher):
+class AnyValueMatcher(ValueMatcher):
     def __call__(self, _: Any) -> bool:
         return True
 
 
-class eq(ValueMatcher):
+class EqualValueMatcher(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
@@ -64,7 +64,7 @@ class eq(ValueMatcher):
         return value == self.value
 
 
-class gt(ValueMatcher):
+class GreaterValueMatcher(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
@@ -72,7 +72,7 @@ class gt(ValueMatcher):
         return value > self.value
 
 
-class gte(ValueMatcher):
+class GreaterThanValueMatcher(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
@@ -80,7 +80,7 @@ class gte(ValueMatcher):
         return value >= self.value
 
 
-class lt(ValueMatcher):
+class LowerValueMatcher(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
@@ -88,7 +88,7 @@ class lt(ValueMatcher):
         return value < self.value
 
 
-class lte(ValueMatcher):
+class LowerThanValueMatcher(ValueMatcher):
     def __init__(self, value: Any):
         self.value = value
 
@@ -114,10 +114,19 @@ class CaptureSlot:
         self._value = value
 
 
-class capture(ValueMatcher):
+class CaptureValueMatcher(ValueMatcher):
     def __init__(self, slot: CaptureSlot) -> None:
         self.slot = slot
 
     def __call__(self, value: Any) -> bool:
         self.slot.value = value
         return True
+
+
+any = AnyValueMatcher
+eq = EqualValueMatcher
+lt = LowerValueMatcher
+lte = LowerThanValueMatcher
+gt = GreaterValueMatcher
+gte = GreaterThanValueMatcher
+capture = CaptureValueMatcher
