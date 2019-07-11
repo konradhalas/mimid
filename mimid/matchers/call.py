@@ -1,7 +1,9 @@
 import abc
-from typing import Tuple, Dict, Union, Any
+import inspect
+from typing import Tuple, Dict, Callable
 
 from mimid.common import CallArguments
+from mimid.exceptions import NotMatchingSignatureException
 from mimid.matchers.value import ValueMatcher
 
 
@@ -12,31 +14,31 @@ class CallArgumentsMatcher(abc.ABC):
 
 
 class SpecificCallArgumentsMatcher(CallArgumentsMatcher):
-    def __init__(self, args: Tuple[ValueMatcher, ...], kwargs: Dict[str, ValueMatcher]) -> None:
-        self.args = args
-        self.kwargs = kwargs
-
-    def match(self, arguments: CallArguments) -> bool:
-        if len(self.args) != len(arguments.args):
-            return False
-        for arg_matcher, arg in zip(self.args, arguments.args):
-            if not arg_matcher(arg):
-                return False
-        if self.kwargs.keys() != arguments.kwargs.keys():
-            return False
-        for arg_name, value in arguments.kwargs.items():
-            arg_matcher = self.kwargs[arg_name]
-            if not arg_matcher(value):
-                return False
-        return True
-
-    @staticmethod
-    def from_values_and_matchers(
-        args: Tuple[Union[ValueMatcher, Any], ...], kwargs: Dict[str, Union[ValueMatcher, Any]]
-    ) -> "SpecificCallArgumentsMatcher":
+    def __init__(self, target: Callable, args: Tuple[ValueMatcher, ...], kwargs: Dict[str, ValueMatcher]) -> None:
+        self.target = target
         args_matchers = [ValueMatcher.from_maybe_value(arg) for arg in args]
         kwargs_matchers = {key: ValueMatcher.from_maybe_value(value) for key, value in kwargs.items()}
-        return SpecificCallArgumentsMatcher(args=tuple(args_matchers), kwargs=kwargs_matchers)
+        self.args = args_matchers
+        self.kwargs = kwargs_matchers
+        signature = inspect.signature(self.target)
+        try:
+            signature.bind(*self.args, **self.kwargs)
+        except TypeError:
+            raise NotMatchingSignatureException()
+
+    def match(self, arguments: CallArguments) -> bool:
+        try:
+            signature = inspect.signature(self.target)
+            call_args_binding = signature.bind(*arguments.args, **arguments.kwargs)
+            matchers_args_binding = signature.bind(*self.args, **self.kwargs)
+            for arg in signature.parameters:
+                value = call_args_binding.arguments[arg]
+                matcher = matchers_args_binding.arguments[arg]
+                if not matcher(value):
+                    return False
+            return True
+        except TypeError:
+            return False
 
 
 class AnyCallArgumentsMatcher(CallArgumentsMatcher):

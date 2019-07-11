@@ -1,6 +1,6 @@
 import pytest
 
-from mimid import mock, every, WrongNumberOfCallsException, verify, gt
+from mimid import mock, every, WrongNumberOfCallsException, verify, gt, NotMatchingSignatureException
 from tests.targets import A, function
 from tests.utils import not_raises
 
@@ -141,3 +141,10 @@ def test_mock_method_verify_does_not_raise_exception_when_verify_with_matching_m
 def test_verify_should_raises_exception_when_called_with_non_mock_object():
     with pytest.raises(TypeError):
         verify(1)
+
+
+def test_mock_function_verify_raises_exception_when_args_does_not_match_signature():
+    func = mock(function)
+
+    with pytest.raises(NotMatchingSignatureException):
+        verify(func).with_args(other_param=1)

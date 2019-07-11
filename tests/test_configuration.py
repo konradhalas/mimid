@@ -1,6 +1,6 @@
 import pytest
 
-from mimid import mock, every, CallNotConfiguredException, gt, lt, slot, capture
+from mimid import mock, every, CallNotConfiguredException, gt, lt, slot, capture, NotMatchingSignatureException
 from tests.targets import A, Error, function
 
 
@@ -159,3 +159,10 @@ def test_mock_function_call_returns_values_configured_with_matchers():
 
     assert result_1 == 1
     assert result_2 == 2
+
+
+def test_mock_configuration_raises_exception_when_args_does_not_match_signature():
+    func = mock(function)
+
+    with pytest.raises(NotMatchingSignatureException):
+        every(func).with_args(other_param=1)

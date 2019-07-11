@@ -12,3 +12,7 @@ class WrongNumberOfCallsException(MimidException):
 
 class ValueNotCapturedException(MimidException):
     pass
+
+
+class NotMatchingSignatureException(MimidException):
+    pass

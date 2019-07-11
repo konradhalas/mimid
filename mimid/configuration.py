@@ -1,3 +1,4 @@
+import functools
 from typing import Optional, Any, List, Dict, Callable
 
 from mimid.common import CallArguments
@@ -35,7 +36,8 @@ class CallConfiguration:
 
 
 class MockCallable:
-    def __init__(self) -> None:
+    def __init__(self, target) -> None:
+        self.target = target
         self.call_configurations: List[CallConfiguration] = []
         self.calls_arguments: List[CallArguments] = []
 
@@ -55,11 +57,15 @@ class Mock:
     def __init__(self, target: Any) -> None:
         self.target = target
         self.mock_attr_callable: Dict[str, MockCallable] = {}
-        self.mock_callable = MockCallable()
+        self.mock_callable = MockCallable(self.target)
 
     def __getattr__(self, attr: str) -> MockCallable:
         if attr not in self.mock_attr_callable:
-            self.mock_attr_callable[attr] = MockCallable()
+            # TODO: probably to rewrite
+            unbound_method = getattr(self.target, attr)
+            bound_method = functools.partial(unbound_method, None)
+            bound_method.__name__ = unbound_method.__name__  # type: ignore
+            self.mock_attr_callable[attr] = MockCallable(bound_method)
         return self.mock_attr_callable[attr]
 
     def __call__(self, *args, **kwargs):
@@ -72,7 +78,9 @@ class MockCallableConfigurator:
         self.call_arguments_matcher: CallArgumentsMatcher = AnyCallArgumentsMatcher()
 
     def with_args(self, *args, **kwargs) -> "MockCallableConfigurator":
-        self.call_arguments_matcher = SpecificCallArgumentsMatcher.from_values_and_matchers(args=args, kwargs=kwargs)
+        self.call_arguments_matcher = SpecificCallArgumentsMatcher(
+            target=self.mock_callable.target, args=args, kwargs=kwargs
+        )
         return self
 
     def returns(self, value: Any) -> None:
