@@ -43,6 +43,7 @@ class MockCallable:
 
     def __call__(self, *args, **kwargs) -> Any:
         call_arguments = CallArguments(args=args, kwargs=kwargs)
+        call_arguments.bind(self.target)
         self.calls_arguments.append(call_arguments)
         for call_configuration in self.call_configurations:
             if call_configuration.match(call_arguments):
@@ -79,7 +80,7 @@ class MockCallableConfigurator:
 
     def with_args(self, *args, **kwargs) -> "MockCallableConfigurator":
         self.call_arguments_matcher = SpecificCallArgumentsMatcher(
-            target=self.mock_callable.target, args=args, kwargs=kwargs
+            target=self.mock_callable.target, arguments=CallArguments(args=args, kwargs=kwargs)
         )
         return self
 

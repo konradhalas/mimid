@@ -20,6 +20,13 @@ def test_mock_method_call_raises_exception_when_call_is_not_configured():
         obj.method(1)
 
 
+def test_mock_method_call_raises_exception_when_method_does_not_exist() -> None:
+    obj = mock(A)
+
+    with pytest.raises(AttributeError):
+        obj.wrong_method(1)
+
+
 def test_mock_method_call_raises_exception_when_called_with_non_matching_arguments():
     obj = mock(A)
     every(obj.method).with_args(1).returns(2)
@@ -37,7 +44,15 @@ def test_mock_method_call_returns_configured_value_when_called_with_matching_arg
     assert result == 2
 
 
-def test_mock_method_call_returns_configured_value_when_called_with_matching_arguments_and_multiple_configurations():
+def test_mock_method_call_raises_exception_when_called_with_wrong_signature():
+    obj = mock(A)
+    every(obj.method).returns(2)
+
+    with pytest.raises(TypeError):
+        obj.method(1, wrong_param=1)
+
+
+def test_mock_method_call_returns_configured_value_when_called_with_matching_arguments_and_multiple_configurations() -> None:
     obj = mock(A)
     every(obj.method).with_args(1).returns(2)
     every(obj.method).with_args(3).returns(4)
@@ -124,7 +139,7 @@ def test_mock_function_call_returns_last_value_when_called_more_times():
     func(1)
     func(1)
 
-    result = func()
+    result = func(1)
 
     assert result == 2
 
@@ -166,3 +181,11 @@ def test_mock_configuration_raises_exception_when_args_does_not_match_signature(
 
     with pytest.raises(NotMatchingSignatureException):
         every(func).with_args(other_param=1)
+
+
+def test_mock_function_call_raises_exception_when_called_with_wrong_signature():
+    func = mock(function)
+    every(func).returns(2)
+
+    with pytest.raises(TypeError):
+        func(1, wrong_param=1)

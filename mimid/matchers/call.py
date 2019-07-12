@@ -1,6 +1,5 @@
 import abc
-import inspect
-from typing import Tuple, Dict, Callable
+from typing import Callable
 
 from mimid.common import CallArguments
 from mimid.exceptions import NotMatchingSignatureException
@@ -14,26 +13,22 @@ class CallArgumentsMatcher(abc.ABC):
 
 
 class SpecificCallArgumentsMatcher(CallArgumentsMatcher):
-    def __init__(self, target: Callable, args: Tuple[ValueMatcher, ...], kwargs: Dict[str, ValueMatcher]) -> None:
+    def __init__(self, target: Callable, arguments: CallArguments) -> None:
         self.target = target
-        args_matchers = [ValueMatcher.from_maybe_value(arg) for arg in args]
-        kwargs_matchers = {key: ValueMatcher.from_maybe_value(value) for key, value in kwargs.items()}
-        self.args = args_matchers
-        self.kwargs = kwargs_matchers
-        signature = inspect.signature(self.target)
+        self.arguments = arguments
         try:
-            signature.bind(*self.args, **self.kwargs)
+            self.arguments.bind(self.target)
         except TypeError:
             raise NotMatchingSignatureException()
 
     def match(self, arguments: CallArguments) -> bool:
         try:
-            signature = inspect.signature(self.target)
-            call_args_binding = signature.bind(*arguments.args, **arguments.kwargs)
-            matchers_args_binding = signature.bind(*self.args, **self.kwargs)
-            for arg in signature.parameters:
-                value = call_args_binding.arguments[arg]
-                matcher = matchers_args_binding.arguments[arg]
+            call_args_binding = arguments.bind(self.target)
+            matchers_args_binding = self.arguments.bind(self.target)
+            for arg in call_args_binding:
+                value = call_args_binding[arg]
+                matcher = matchers_args_binding[arg]
+                matcher = ValueMatcher.from_maybe_value(matcher)
                 if not matcher(value):
                     return False
             return True

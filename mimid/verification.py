@@ -1,5 +1,6 @@
 from typing import Union
 
+from mimid.common import CallArguments
 from mimid.configuration import MockCallable
 from mimid.exceptions import WrongNumberOfCallsException
 from mimid.matchers.call import SpecificCallArgumentsMatcher, AnyCallArgumentsMatcher, CallArgumentsMatcher
@@ -13,7 +14,7 @@ class MockAttributeVerifier:
 
     def with_args(self, *args, **kwargs) -> "MockAttributeVerifier":
         self.call_arguments_matcher = SpecificCallArgumentsMatcher(
-            target=self.mock_callable.target, args=args, kwargs=kwargs
+            target=self.mock_callable.target, arguments=CallArguments(args=args, kwargs=kwargs)
         )
         return self
 
