@@ -1,6 +1,6 @@
 import pytest
 
-from mimid import mock, every, CallNotConfiguredException, gt, lt, slot, capture, NotMatchingSignatureException
+from mimid import mock, every, prop, CallNotConfiguredException, gt, lt, slot, capture, NotMatchingSignatureException
 from tests.targets import A, Error, function
 
 
@@ -189,3 +189,19 @@ def test_mock_function_call_raises_exception_when_called_with_wrong_signature():
 
     with pytest.raises(TypeError):
         func(1, wrong_param=1)
+
+
+def test_mock_property_returns_configured_value():
+    obj = mock(A)
+    every(prop(obj).prop).returns(1)
+
+    result = obj.prop
+
+    assert result == 1
+
+
+def test_prop_should_raise_attribute_error_when_called_with_wrong_attr():
+    obj = mock(A)
+
+    with pytest.raises(AttributeError):
+        prop(obj).wrong_property

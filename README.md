@@ -45,7 +45,7 @@ Mimid supports following features:
 - easy mock behaviour configuration and verification
 - works with classes and plain functions
 - fully type hinted - it works with IDE's and type checkers
-- clean API, without too much magic
+- clean API - not too much magic
 
 ## Why not `mock`?
 
@@ -127,6 +127,21 @@ every(function_mock).with_args(param=2).returns(1)
 every(function_mock).with_args(param=3).raises(Exception())
 ```
 
+If you want to define property behaviour you have to use `prop` function:
+
+```python
+from mimid import mock, every, prop
+
+class A:
+    
+    @property
+    def x(self) -> int:
+        pass
+        
+class_mock = mock(A) 
+every(prop(class_mock).x).returns(1)
+```
+
 Available configurations:
 
 | Configuration    | Description                           |
@@ -156,7 +171,7 @@ verify(function_mock).called(times=2)
 You can use the same `with_args` also during verification step:
 
 ```python
-from mimid import mock, every, verify
+from mimid import mock, verify
 
 def foo(param):
     pass

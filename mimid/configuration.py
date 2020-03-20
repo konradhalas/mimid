@@ -1,3 +1,4 @@
+import abc
 import functools
 from typing import Optional, Any, List, Dict, Callable
 
@@ -59,10 +60,12 @@ class Mock:
         self.target = target
         self.mock_attr_callable: Dict[str, MockCallable] = {}
         self.mock_callable = MockCallable(self.target)
+        self.property_configurations: Dict[str, CallConfiguration] = {}
 
     def __getattr__(self, attr: str) -> MockCallable:
+        if attr in self.property_configurations:
+            return self.property_configurations[attr].execute()
         if attr not in self.mock_attr_callable:
-            # TODO: probably to rewrite
             unbound_method = getattr(self.target, attr)
             bound_method = functools.partial(unbound_method, None)
             bound_method.__name__ = unbound_method.__name__  # type: ignore
@@ -72,8 +75,50 @@ class Mock:
     def __call__(self, *args, **kwargs):
         return self.mock_callable(*args, **kwargs)
 
+    def add_property_configuration(self, property_: str, call_configuration: CallConfiguration):
+        self.property_configurations[property_] = call_configuration
 
-class MockCallableConfigurator:
+
+class MockProperty:
+    def __init__(self, mock: Mock, property_: str) -> None:
+        self.mock = mock
+        self.property = property_
+
+
+class MockPropertyGetter:
+    def __init__(self, mock: Mock) -> None:
+        self.mock = mock
+
+    def __getattr__(self, attr: str) -> MockProperty:
+        if not hasattr(self.mock.target, attr):
+            raise AttributeError(f"'{self.mock.target}' object has no attribute '{attr}'")
+        return MockProperty(self.mock, attr)
+
+
+class MockEffectsConfigurator(abc.ABC):
+    @abc.abstractmethod
+    def returns(self, value: Any) -> None:
+        pass
+
+    @abc.abstractmethod
+    def raises(self, exception: Exception) -> None:
+        pass
+
+    @abc.abstractmethod
+    def returns_many(self, values: List[Any]) -> None:
+        pass
+
+    @abc.abstractmethod
+    def execute(self, callable: Callable[[], Any]):
+        pass
+
+
+class MockArgsConfigurator(abc.ABC):
+    def with_args(self, *args, **kwargs) -> MockEffectsConfigurator:
+        pass
+
+
+class MockCallableConfigurator(MockArgsConfigurator, MockEffectsConfigurator):
     def __init__(self, mock_callable: MockCallable) -> None:
         self.mock_callable = mock_callable
         self.call_arguments_matcher: CallArgumentsMatcher = AnyCallArgumentsMatcher()
@@ -102,4 +147,33 @@ class MockCallableConfigurator:
     def execute(self, callable: Callable[[], Any]):
         self.mock_callable.add_configuration(
             CallConfiguration(call_arguments_matcher=self.call_arguments_matcher, callable=callable)
+        )
+
+
+class MockPropertyConfigurator(MockEffectsConfigurator):
+    def __init__(self, mock_property: MockProperty) -> None:
+        self.mock_property = mock_property
+
+    def raises(self, exception: Exception) -> None:
+        self.mock_property.mock.add_property_configuration(
+            self.mock_property.property,
+            CallConfiguration(call_arguments_matcher=AnyCallArgumentsMatcher(), exception=exception),
+        )
+
+    def returns(self, value: Any) -> None:
+        self.mock_property.mock.add_property_configuration(
+            self.mock_property.property,
+            CallConfiguration(call_arguments_matcher=AnyCallArgumentsMatcher(), return_values=[value]),
+        )
+
+    def returns_many(self, values: List[Any]) -> None:
+        self.mock_property.mock.add_property_configuration(
+            self.mock_property.property,
+            CallConfiguration(call_arguments_matcher=AnyCallArgumentsMatcher(), return_values=values),
+        )
+
+    def execute(self, callable: Callable[[], Any]):
+        self.mock_property.mock.add_property_configuration(
+            self.mock_property.property,
+            CallConfiguration(call_arguments_matcher=AnyCallArgumentsMatcher(), callable=callable),
         )
