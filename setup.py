@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="mimid",
-    version="0.0.7",
+    version="0.0.8",
     description="Modern mocking library for Python.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
