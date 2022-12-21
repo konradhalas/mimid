@@ -114,6 +114,7 @@ class MockEffectsConfigurator(abc.ABC):
 
 
 class MockArgsConfigurator(abc.ABC):
+    @abc.abstractmethod
     def with_args(self, *args, **kwargs) -> MockEffectsConfigurator:
         pass
 
